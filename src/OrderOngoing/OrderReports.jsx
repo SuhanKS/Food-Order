@@ -1,5 +1,5 @@
+import { useState } from "react";
 import SvgFilter from "../Svg/SvgFilter";
-
 export default function OrderReports({ orders, setOrders }) {
   function handleDeliver(item) {
     setOrders((prevData) =>
@@ -14,7 +14,12 @@ export default function OrderReports({ orders, setOrders }) {
   function handleDelete(item) {
     setOrders((prevData) => prevData.filter((ord) => ord.id !== item.id));
   }
-
+  const [selectedValue, setSelectedValue] = useState("ALL");
+  const handleFilter = (e) => {
+    setSelectedValue(e.target.value);
+  };
+  console.log(orders);
+  console.log(selectedValue);
   return (
     <div>
       <div className="flex justify-between">
@@ -22,10 +27,13 @@ export default function OrderReports({ orders, setOrders }) {
 
         <div className="flex gap-4 items-center">
           <SvgFilter />
-          <select className="appearance-none bg-zinc-900 accent-orange-600 border-none outline-none rounded-sm">
-            <option>All</option>
-            <option>Pending</option>
-            <option>Delivered</option>
+          <select
+            className="appearance-none bg-zinc-900 accent-orange-600 border-none outline-none rounded-sm"
+            onChange={handleFilter}
+          >
+            <option>ALL</option>
+            <option>PENDING</option>
+            <option>DELIVERED</option>
           </select>
         </div>
       </div>
@@ -43,41 +51,57 @@ export default function OrderReports({ orders, setOrders }) {
               </tr>
             </thead>
             <tbody className="text-sm">
-              {orders.map((order, index) => (
-                <tr key={index} className="border-t border-gray-700">
-                  <td className="py-3">{index + 1}</td>
-                  <td className="py-3">{order.name}</td>
-                  <td className="py-3">{order.items}</td>
-                  <td className="py-3">{order.amount}</td>
-                  <td className="py-3">
-                    <span
-                      className={
-                        order.status === "DELIVERED"
-                          ? "text-green-500"
-                          : "text-red-500"
-                      }
-                    >
-                      {order.status}
-                    </span>
-                  </td>
-                  <td className="py-3">
-                    <button
-                      className="bg-gray-800 hover:bg-red-600 text-xs px-3 py-1 rounded-full mr-1 transition-colors duration-300"
-                      onClick={() => handleDelete(order)}
-                    >
-                      Delete
-                    </button>
-                    {order.status !== "DELIVERED" && (
-                      <button
-                        className="bg-gray-800 hover:bg-green-600 text-xs px-3 py-1 rounded-full transition-colors duration-300"
-                        onClick={() => handleDeliver(order)}
+              {orders
+                .filter((item) => {
+                  if (
+                    selectedValue === "PENDING" &&
+                    item.status === "PENDING"
+                  ) {
+                    return item;
+                  } else if (
+                    selectedValue === "DELIVERED" &&
+                    item.status === "DELIVERED"
+                  ) {
+                    return item;
+                  } else if (selectedValue === "ALL") {
+                    return item;
+                  }
+                })
+                .map((order, index) => (
+                  <tr key={index} className="border-t border-gray-700">
+                    <td className="py-3">{index + 1}</td>
+                    <td className="py-3">{order.name}</td>
+                    <td className="py-3">{order.items}</td>
+                    <td className="py-3">{order.amount}</td>
+                    <td className="py-3">
+                      <span
+                        className={
+                          order.status === "DELIVERED"
+                            ? "text-green-500"
+                            : "text-red-500"
+                        }
                       >
-                        DELIVER
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="py-3">
+                      <button
+                        className="bg-gray-800 hover:bg-red-600 text-xs px-3 py-1 rounded-full mr-1 transition-colors duration-300"
+                        onClick={() => handleDelete(order)}
+                      >
+                        Delete
                       </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                      {order.status !== "DELIVERED" && (
+                        <button
+                          className="bg-gray-800 hover:bg-green-600 text-xs px-3 py-1 rounded-full transition-colors duration-300"
+                          onClick={() => handleDeliver(order)}
+                        >
+                          DELIVER
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>
